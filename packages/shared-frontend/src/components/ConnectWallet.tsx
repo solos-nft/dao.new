@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Image,
   Modal,
@@ -21,11 +20,11 @@ export function ConnectWallet(): JSX.Element {
 
   return (
     <>
-      <Box>
-        <Button colorScheme="teal" variant="outline" onClick={onOpen}>
+      <div>
+        <button onClick={onOpen}>
           Connect wallet
-        </Button>
-      </Box>
+        </button>
+      </div>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>

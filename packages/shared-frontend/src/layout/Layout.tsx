@@ -5,20 +5,13 @@ import {
   AlertTitle,
   Box,
   Button,
-  Container,
-  Flex,
-  Image,
-  Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  SimpleGrid,
-  Text,
 } from '@chakra-ui/react'
 import { useEthers, useNotifications } from '@usedapp/core'
 import blockies from 'blockies-ts'
-import NextLink from 'next/link'
 import React from 'react'
 import { getErrorMessage } from '../lib/utils'
 import { Balance } from '../components/Balance'
@@ -57,6 +50,7 @@ interface NavbarLink {
 
 interface LayoutProps {
   children: React.ReactNode
+  footer: React.ReactNode
   customMeta?: MetaProps
   navbarLinks?: NavbarLink[]
 }
@@ -67,7 +61,7 @@ interface LayoutProps {
 export const Layout = ({
   children,
   customMeta,
-  navbarLinks,
+  footer
 }: LayoutProps): JSX.Element => {
   const { account, deactivate, error } = useEthers()
   const { notifications } = useNotifications()
@@ -77,98 +71,75 @@ export const Layout = ({
     blockieImageSrc = blockies.create({ seed: account }).toDataURL()
   }
 
-  const navLinks = navbarLinks.map((nl, index) => (
-    <NextLink key={index} href={nl.href} passHref>
-      <Link px="4" py="1">
-        {nl.label}
-      </Link>
-    </NextLink>
-  ))
-
   return (
     <>
       <Head customMeta={customMeta} />
-      <header>
-        <Container maxWidth="container.xl">
-          <SimpleGrid
-            columns={[1, 1, 1, 2]}
-            alignItems="center"
-            justifyContent="space-between"
-            py="8"
-          >
-            <Flex py={[4, null, null, 0]}>{navLinks}</Flex>
-
-            <Flex
-              order={[-1, null, null, 2]}
-              alignItems={'center'}
-              justifyContent={['flex-start', null, null, 'flex-end']}
-            >
-              {account ? (
-                <>
-                  <Balance />
-                  <Image ml="4" src={blockieImageSrc} alt="blockie" />
-                  <Menu placement="bottom-end">
-                    <MenuButton as={Button} ml="4">
-                      {truncateHash(account)}
-                    </MenuButton>
-                    <MenuList>
-                      <MenuItem
-                        onClick={() => {
-                          deactivate()
-                        }}
-                      >
-                        Disconnect
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                </>
-              ) : (
-                <ConnectWallet />
-              )}
-            </Flex>
-          </SimpleGrid>
-        </Container>
+      <header className='absolute top-0 w-full'>
+        <div className="p-4 flex justify-end items-center">
+          {account ? (
+            <>
+              <Balance />
+              <img className="mr-4 rounded" src={blockieImageSrc} alt="blockie" />
+              <Menu placement="bottom-end">
+                <MenuButton as={Button}>
+                  <span className="text-sm">
+                    {truncateHash(account)}
+                  </span>
+                </MenuButton>
+                <MenuList>
+                  <MenuItem
+                    onClick={() => {
+                      deactivate()
+                    }}
+                  >
+                    Disconnect
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </>
+          ) : (
+            <ConnectWallet />
+          )}
+        </div>
       </header>
       <main>
-        <Container maxWidth="container.xl">
-          {error && (
-            <Alert status="error" mb="8">
+        {error && (
+          <Alert status="error" mb="8">
+            <AlertIcon />
+            <AlertTitle mr={2}>Error:</AlertTitle>
+            <AlertDescription>{getErrorMessage(error)}</AlertDescription>
+          </Alert>
+        )}
+        {children}
+        {notifications.map((notification) => {
+          if (notification.type === 'walletConnected') {
+            return null
+          }
+          return (
+            <Alert
+              key={notification.id}
+              status="success"
+              position="fixed"
+              bottom="8"
+              right="8"
+              width="400px"
+            >
               <AlertIcon />
-              <AlertTitle mr={2}>Error:</AlertTitle>
-              <AlertDescription>{getErrorMessage(error)}</AlertDescription>
+              <Box>
+                <AlertTitle>
+                  {TRANSACTION_TITLES[notification.type]}
+                </AlertTitle>
+                <AlertDescription overflow="hidden">
+                  Transaction Hash:{' '}
+                  {truncateHash(notification.transaction.hash, 61)}
+                </AlertDescription>
+              </Box>
             </Alert>
-          )}
-          {children}
-          {notifications.map((notification) => {
-            if (notification.type === 'walletConnected') {
-              return null
-            }
-            return (
-              <Alert
-                key={notification.id}
-                status="success"
-                position="fixed"
-                bottom="8"
-                right="8"
-                width="400px"
-              >
-                <AlertIcon />
-                <Box>
-                  <AlertTitle>
-                    {TRANSACTION_TITLES[notification.type]}
-                  </AlertTitle>
-                  <AlertDescription overflow="hidden">
-                    Transaction Hash:{' '}
-                    {truncateHash(notification.transaction.hash, 61)}
-                  </AlertDescription>
-                </Box>
-              </Alert>
-            )
-          })}
-        </Container>
+          )
+        })}
       </main>
       <footer>
-        <Container mt="8" py="8" maxWidth="container.xl"></Container>
+        {footer}
       </footer>
     </>
   )

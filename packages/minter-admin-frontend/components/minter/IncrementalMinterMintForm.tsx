@@ -2,13 +2,10 @@ import {
   Box,
   Button,
   FormControl,
-  FormLabel,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  VStack,
+  NumberInputField
 } from '@chakra-ui/react'
 import { formatEther } from 'ethers/lib/utils'
 import React, { useState } from 'react'
@@ -28,31 +25,32 @@ export const IncrementalMinterMintForm = ({ tokenPrice }) => {
   }
 
   return (
-    <VStack>
+    <div className="flex flex-col">
       <FormControl>
-        <FormLabel>Tokens to mint (max {maxMintPerTx}):</FormLabel>
+        <p className="text-center mb-4 font-semibold">Pieces to mint (max {maxMintPerTx}):</p>
         <NumberInput
           step={1}
           min={0}
           max={maxMintPerTx}
           value={tokensToMint}
           onChange={(_, n) => setTokensToMint(n)}
+          className="flex flex-col items-center justify-center"
         >
+          <NumberIncrementStepper className='!mb-4 p-4 !rounded-full bg-indigo-200 hover:bg-indigo-400 transition-colors' />
           <NumberInputField fontSize="30px" textAlign="center" padding={6} />
-          <NumberInputStepper>
-            <NumberIncrementStepper />
-            <NumberDecrementStepper />
-          </NumberInputStepper>
+          <NumberDecrementStepper className='!mt-4 p-4 !rounded-full bg-indigo-200 hover:bg-indigo-400 transition-colors' />
         </NumberInput>
       </FormControl>
-
-      <Box>ETH: {valueToSend && formatEther(valueToSend)}</Box>
       <Button
-        w="100%"
+        className='!bg-indigo-500 !hover:bg-indigo-300 text-white mt-5'
         onClick={mintClicked}
         isLoading={mintState.status === 'Mining'}
       >
-        MINT
+        MINT {
+        valueToSend && (
+          <span className='font-semibold'>for ETH: {valueToSend && formatEther(valueToSend)}</span>
+        )
+      }
       </Button>
 
       <Box>
@@ -61,6 +59,6 @@ export const IncrementalMinterMintForm = ({ tokenPrice }) => {
       <Box>
         {mintState.status === 'Exception' ? mintState.errorMessage : ''}
       </Box>
-    </VStack>
+    </div>
   )
 }

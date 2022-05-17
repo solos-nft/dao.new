@@ -1,4 +1,3 @@
-import { Text } from '@chakra-ui/react'
 import { useEtherBalance, useEthers } from '@usedapp/core'
 import { utils } from 'ethers'
 
@@ -7,5 +6,5 @@ export function Balance(): JSX.Element {
   const etherBalance = useEtherBalance(account)
   const finalBalance = etherBalance ? utils.formatEther(etherBalance) : ''
 
-  return <Text>{finalBalance} ETH</Text>
+  return <p className="text-sm mr-4">{finalBalance} ETH</p>
 }

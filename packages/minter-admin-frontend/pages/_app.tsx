@@ -15,6 +15,8 @@ import type { AppProps } from 'next/app'
 import React from 'react'
 import { CHAIN_ID, multicallOnLocalhost } from '../config'
 
+import '../styles/index.css'
+
 const config: Config = {
   readOnlyChainId: CHAIN_ID,
   readOnlyUrls: {
